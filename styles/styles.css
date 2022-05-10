@@ -54,6 +54,7 @@ img {
 button {
     font-size: large;
     border-radius: 6px;
-    width: 10%;
+    width: fit-content;
+    padding-inline: 15px;
     background-color: var(--gray);
 }
