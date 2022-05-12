@@ -1,8 +1,10 @@
 // https://firebase.google.com/docs/web/setup
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
 import { getStorage, ref, getDownloadURL, listAll, getMetadata } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js';
+import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
 
 const firebaseConfig = {
+    apiKey: ' AIzaSyB6y_JrkR6xCJW8MVXk5Xz7aVWHF2IOlYg ',
     databaseURL: 'https://which-drawer-default-rtdb.firebaseio.com',
     storageBucket: 'which-drawer.appspot.com'
 };
@@ -44,8 +46,17 @@ function loadFiles() {
     });
 }
 
-let objects = localStorage.getItem("objects")
-    ? JSON.parse(localStorage.getItem("objects"))
-    : [];
-console.log(objects.length)
-if (objects.length == undefined || objects == 0) { loadFiles() }
+const auth = getAuth(firebaseApp);
+signInAnonymously(auth)
+    .then(() => {
+        const objects = localStorage.getItem("objects")
+            ? JSON.parse(localStorage.getItem("objects"))
+            : [];
+
+        if (objects.length == undefined || objects == 0) { loadFiles() }
+    })
+    .catch((error) => {
+        const errorCode = error.code
+        const errorMessage = error.message
+        console.log("Kitchen's closed")
+    });
