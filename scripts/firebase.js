@@ -16,21 +16,18 @@ const storageRef = ref(storage, 'gs://which-drawer.appspot.com/');
 const itemList = document.getElementById("item-list");
 
 // Now we get the references of these images
-function loadFiles() {
-    let files = {}
+async function loadFiles() {
+    const files = {}
+    var search_list = []
     listAll(storageRef).then(function (result) {
         result.items.forEach(function (imageRef) {
             getDownloadURL(imageRef)
                 .then((url) => {
                     getMetadata(imageRef)
                         .then((metadata) => {
-                            let newListItem = document.createElement("li");
-                            let display = metadata.customMetadata.Display
-                            let itemName = document.createTextNode(display);
-                            newListItem.appendChild(itemName);
-                            newListItem.addEventListener('click', function(){ showLoc(display); });
-                            itemList.appendChild(newListItem);
+                            const display = metadata.customMetadata.Display
                             files[display] = url
+                            search_list.push(display)
                             localStorage.setItem('objects', JSON.stringify(files))
                         })
                         .catch((error) => {
@@ -43,7 +40,7 @@ function loadFiles() {
         });
     }).catch(function (error) {
         console.log("Kitchen's closed.")
-    });
+    })
 }
 
 const auth = getAuth(firebaseApp);
@@ -53,7 +50,26 @@ signInAnonymously(auth)
             ? JSON.parse(localStorage.getItem("objects"))
             : [];
 
-        if (objects.length == undefined || objects == 0) { loadFiles() }
+        if (objects.length == undefined || objects == 0) {
+            loadFiles()
+        }
+    })
+    .then(() => {
+        const objects = localStorage.getItem("objects")
+            ? JSON.parse(localStorage.getItem("objects"))
+            : [];
+        const all_items = Object.keys(objects)
+        if (all_items.length > 0) {
+            all_items.sort()
+            for (const item in all_items) {
+                const display = all_items[item]
+                const newListItem = document.createElement("li");
+                const itemName = document.createTextNode(display);
+                newListItem.appendChild(itemName);
+                newListItem.addEventListener('click', function(){ showLoc(display); });
+                itemList.appendChild(newListItem);
+            }
+        }
     })
     .catch((error) => {
         const errorCode = error.code
